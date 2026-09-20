@@ -1,0 +1,88 @@
+spring:
+  application:
+    name: mysociety-api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: identity-auth
+          uri: ${IDENTITY_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: identityService
+                fallbackUri: forward:/__gateway/fallback
+        - id: identity-users
+          uri: ${IDENTITY_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@principalOrIpKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: identityService
+                fallbackUri: forward:/__gateway/fallback
+        - id: society-domain
+          uri: ${SOCIETY_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/societies/**,/api/v1/buildings/**,/api/v1/units/**,/api/v1/residents/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@principalOrIpKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: societyService
+                fallbackUri: forward:/__gateway/fallback
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+server:
+  port: 8080
+
+gateway:
+  security:
+    jwt-hmac-secret: ${JWT_HMAC_SECRET}
+    issuer: ${JWT_ISSUER:mysociety-identity}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:4200}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      identityService:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      societyService:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
