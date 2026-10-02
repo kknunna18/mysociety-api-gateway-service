@@ -1,11 +1,12 @@
 package com.mysociety.gateway.config;
 
-import java.net.InetSocketAddress;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.net.InetSocketAddress;
 
 @Configuration
 public class RateLimitConfig {

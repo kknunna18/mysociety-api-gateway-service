@@ -1,6 +1,5 @@
 package com.mysociety.gateway.filter;
 
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -9,6 +8,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 @Component
 public class CorrelationIdFilter implements WebFilter, Ordered {

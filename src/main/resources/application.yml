@@ -5,16 +5,11 @@ spring:
     gateway:
       routes:
         - id: identity-auth
-          uri: ${IDENTITY_SERVICE_URL:http://localhost:8081}
+          uri: ${IDENTITY_SERVICE_URL:http://localhost:8080}
           predicates:
             - Path=/api/v1/auth/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: identityService
-                fallbackUri: forward:/__gateway/fallback
         - id: identity-users
-          uri: ${IDENTITY_SERVICE_URL:http://localhost:8081}
+          uri: ${IDENTITY_SERVICE_URL:http://localhost:8080}
           predicates:
             - Path=/api/v1/users/**
           filters:
@@ -23,10 +18,6 @@ spring:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
                 key-resolver: "#{@principalOrIpKeyResolver}"
-            - name: CircuitBreaker
-              args:
-                name: identityService
-                fallbackUri: forward:/__gateway/fallback
         - id: society-domain
           uri: ${SOCIETY_SERVICE_URL:http://localhost:8082}
           predicates:
@@ -47,14 +38,15 @@ spring:
       port: ${REDIS_PORT:6379}
 
 server:
-  port: 8080
+  port: 8081
+
 
 gateway:
   security:
     jwt-hmac-secret: ${JWT_HMAC_SECRET}
     issuer: ${JWT_ISSUER:mysociety-identity}
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:4200}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:4200,http://localhost:5173}
 
 management:
   endpoints:
