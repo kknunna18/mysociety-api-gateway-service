@@ -1,0 +1,6 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+# Local URLs can be overridden through IDENTITY_SERVICE_URL and SOCIETY_SERVICE_URL.
