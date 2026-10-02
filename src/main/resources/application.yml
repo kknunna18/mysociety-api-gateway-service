@@ -32,6 +32,20 @@ spring:
               args:
                 name: societyService
                 fallbackUri: forward:/__gateway/fallback
+        - id: reporting-dashboard
+          uri: ${REPORTING_SERVICE_URL:http://localhost:8087}
+          predicates:
+            - Path=/api/v1/dashboard/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@principalOrIpKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: reportingService
+                fallbackUri: forward:/__gateway/fallback
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -75,6 +89,10 @@ resilience4j:
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
       societyService:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+      reportingService:
         slidingWindowSize: 10
         failureRateThreshold: 50
         waitDurationInOpenState: 10s

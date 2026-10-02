@@ -26,7 +26,7 @@ class GatewayApplicationTests {
     void configuresAllGatewayRoutes() {
         assertThat(routeLocator.getRoutes().collectList().block())
                 .extracting(route -> route.getId())
-                .contains("identity-auth", "identity-users", "society-domain");
+                .contains("identity-auth", "identity-users", "society-domain", "reporting-dashboard");
     }
 
     @Test

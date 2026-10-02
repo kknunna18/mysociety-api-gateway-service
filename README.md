@@ -21,6 +21,7 @@ never requires Docker.
 | `/api/v1/auth/**`                                                                          | `IDENTITY_SERVICE_URL` (default `http://localhost:8081`) |
 | `/api/v1/users/**`                                                                         | `IDENTITY_SERVICE_URL`                                   |
 | `/api/v1/societies/**`, `/api/v1/buildings/**`, `/api/v1/units/**`, `/api/v1/residents/**` | `SOCIETY_SERVICE_URL` (default `http://localhost:8082`)  |
+| `/api/v1/dashboard/**` | `REPORTING_SERVICE_URL` (default `http://localhost:8087`) |
 
 The gateway preserves the API path. `JWT_HMAC_SECRET`, `JWT_ISSUER` (default `mysociety-identity`), service URLs, Redis
 location, CORS origins, and tracing sampling are environment configurable.
