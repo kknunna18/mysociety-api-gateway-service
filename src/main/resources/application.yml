@@ -45,6 +45,26 @@ spring:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
                 key-resolver: "#{@principalOrIpKeyResolver}"
+        - id: operations-domain
+          uri: ${OPERATIONS_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/v1/complaints/**,/api/v1/work-orders/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@principalOrIpKeyResolver}"
+        - id: finance-domain
+          uri: ${FINANCE_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/v1/charge-heads/**,/api/v1/billing-runs/**,/api/v1/invoices/**,/api/v1/payments/**,/api/v1/reconciliation/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@principalOrIpKeyResolver}"
         - id: reporting-dashboard
           uri: ${REPORTING_SERVICE_URL:http://localhost:8087}
           predicates:
