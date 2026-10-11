@@ -1,3 +1,10 @@
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.oauth2.jwt: DEBUG
+    com.mysociety.gateway: DEBUG
+
 spring:
   application:
     name: mysociety-api-gateway
@@ -28,10 +35,16 @@ spring:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
                 key-resolver: "#{@principalOrIpKeyResolver}"
-            - name: CircuitBreaker
+        - id: communication-domain
+          uri: ${COMMUNICATION_SERVICE_URL:http://localhost:8086}
+          predicates:
+            - Path=/api/v1/notices/**,/api/v1/documents/**,/api/v1/attachments/**,/api/v1/notification-templates/**,/api/v1/notifications/**
+          filters:
+            - name: RequestRateLimiter
               args:
-                name: societyService
-                fallbackUri: forward:/__gateway/fallback
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@principalOrIpKeyResolver}"
         - id: reporting-dashboard
           uri: ${REPORTING_SERVICE_URL:http://localhost:8087}
           predicates:
@@ -42,10 +55,6 @@ spring:
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
                 key-resolver: "#{@principalOrIpKeyResolver}"
-            - name: CircuitBreaker
-              args:
-                name: reportingService
-                fallbackUri: forward:/__gateway/fallback
   data:
     redis:
       host: ${REDIS_HOST:localhost}
